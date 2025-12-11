@@ -1,0 +1,27 @@
+name: Clean Up (Delete Resource)
+
+on:
+  workflow_dispatch: # 실수로 지우지 않게 수동 버튼으로만 작동
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  delete-resource:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Azure 로그인
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: 리소스 그룹 강제 삭제
+        uses: azure/CLI@v1
+        with:
+          inlineScript: |
+            # rg-dr-success-test 라는 이름의 폴더를 묻지도 따지지도 않고 삭제함
+            az group delete --name rg-dr-success-test --yes --no-wait
+            echo "삭제 명령을 내렸습니다. 몇 분 뒤 완전히 사라집니다."
