@@ -1,0 +1,32 @@
+name: DR Test PoC
+
+on:
+  workflow_dispatch: # 수동 버튼 기능
+  repository_dispatch: # 외부 신호 감지 기능 (나중을 위해 추가)
+    types: [dr-trigger]
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  run-dr:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 코드 가져오기
+        uses: actions/checkout@v4
+
+      - name: Azure 로그인
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Terraform 설치
+        uses: hashicorp/setup-terraform@v2
+
+      - name: Terraform 초기화 및 실행
+        run: |
+          terraform init
+          terraform apply -auto-approve
